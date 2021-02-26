@@ -24,7 +24,10 @@ class CreateUserCommand extends Command
 
     protected function configure()
     {
-        // ...
+        $this
+            ->setDescription('Creates a new user.')
+            ->setHelp('This command allows you to create a user...');
+//            ->addArgument();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
