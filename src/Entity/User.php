@@ -11,62 +11,46 @@ use Doctrine\ORM\Mapping as ORM;
 class User
 {
     /**
-     * @var int $id
-     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(name="id", type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
-     * @var string $firstName
-     *
      * @ORM\Column(name="firstname", type="string", length=50, nullable=true)
      */
-    private $firstName;
+    private ?string $firstName;
 
     /**
-     * @var string $lastName
-     *
      * @ORM\Column(name="lastname", type="string", length=50, nullable=true)
      */
-    private $lastName;
+    private ?string $lastName;
 
     /**
-     * @var string $email
-     *
-     * @ORM\Column(name="email", type="string", length=80, nullable=false)
+     * @ORM\Column(name="email", type="string", length=80)
      */
-    private $email;
+    private string $email;
 
     /**
-     * @var string $phoneNumber1
-     *
      * @ORM\Column(name="phonenumber1", type="string", length=30, nullable=true)
      */
-    private $phoneNumber1;
+    private ?string $phoneNumber1;
 
     /**
-     * @var string $phoneNumber2
-     *
      * @ORM\Column(name="phonenumber2", type="string", length=30, nullable=true)
      */
-    private $phoneNumber2;
+    private ?string $phoneNumber2;
 
     /**
-     * @var string $comment
-     *
      * @ORM\Column(name="comment", type="string", length=255, nullable=true)
      */
-    private $comment;
+    private ?string $comment;
 
     /**
-     * @var \DateTime $doc
-     *
-     * @ORM\Column(name="doc", type="datetime", length=255, nullable=false)
+     * @ORM\Column(name="doc", type="datetime", length=255)
      */
-    private $doc;
+    private \DateTime $doc;
 
     /**
      * @return int

@@ -13,18 +13,11 @@ class FindUserCommand extends Command
 {
     protected static $defaultName = 'app:user:find';
 
-    /**
-     * @var UserManager
-     */
-	private $userManager;
+	private UserManager $userManager;
+	private UserManagerMessageProvider $messageProvider;
 
     /**
-     * @var UserManagerMessageProvider
-     */
-	private $messageProvider;
-
-    /**
-     * @param UserManager $userManager
+     * @param UserManager                $userManager
      * @param UserManagerMessageProvider $messageProvider
      */
     public function __construct(
@@ -46,7 +39,7 @@ class FindUserCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return int
