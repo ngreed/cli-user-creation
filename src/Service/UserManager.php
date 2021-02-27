@@ -3,18 +3,17 @@
 namespace App\Service;
 
 use App\Entity\User;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
 	private $entityManager;
 
     /**
-     * @param EntityManager $entityManager
+     * @param EntityManagerInterface $entityManager
      */
 	public function __construct(EntityManagerInterface $entityManager)
     {
@@ -107,6 +106,37 @@ class UserManager
     public function find(string $email) : ?User
     {
         return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+    }
+
+    /**
+     * @param string $filepath
+     *
+     * @return bool
+     */
+    public function import(string $filepath) : bool
+    {
+        if (($handle = fopen($filepath, "r")) !== false) {
+            while (($data = fgetcsv($handle, 255)) !== false) {
+                $email = $data[2];
+                if ($this->find($email) instanceof User) {
+                    continue;
+                }
+
+                $this->create(
+                    $data[0],
+                    $data[1],
+                    $email,
+                    $data[3],
+                    $data[4],
+                    $data[5]
+                );
+            }
+            fclose($handle);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

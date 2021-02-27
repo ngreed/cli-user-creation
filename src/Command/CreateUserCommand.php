@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\User;
 use App\Service\UserManager;
 use App\Service\UserManagerMessageProvider;
 use Symfony\Component\Console\Command\Command;
@@ -59,8 +60,15 @@ class CreateUserCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $email = $input->getArgument('email');
+
         if (!$this->userManager->validateEmail($email)) {
             $output->writeln(UserManagerMessageProvider::ERROR_EMAIL);
+
+            return Command::FAILURE;
+        }
+
+        if ($this->userManager->find($email) instanceof User) {
+            $output->writeln(UserManagerMessageProvider::ERROR_DUPLICATE);
 
             return Command::FAILURE;
         }

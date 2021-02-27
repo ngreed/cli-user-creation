@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FindUserCommand extends Command
+class ImportUserCommand extends Command
 {
-    protected static $defaultName = 'app:user:find';
+    protected static $defaultName = 'app:user:import';
 
     /**
      * @var UserManager
@@ -40,9 +40,9 @@ class FindUserCommand extends Command
     protected function configure() : void
     {
         $this
-            ->setDescription("Displays user's data")
-            ->setHelp("This command allows you to display user's data.")
-            ->addArgument('email', InputArgument::REQUIRED, "User's Email Address");
+            ->setDescription('Imports users.')
+            ->setHelp('This command allows you to import users from a csv file.')
+            ->addArgument('filepath', InputArgument::REQUIRED, 'Path to csv import file');
     }
 
     /**
@@ -53,14 +53,11 @@ class FindUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $output->writeln(
-            $this->messageProvider->getFindMessage(
-                $this->userManager->find(
-                    $input->getArgument('email')
-                )
-            )
-        );
+        $isSuccess = $this->userManager->import($input->getArgument('filepath'));
+        $output->writeln($this->messageProvider->getImportMessage($isSuccess));
 
-        return Command::SUCCESS;
+        return $isSuccess
+            ? Command::SUCCESS
+            : Command::FAILURE;
     }
 }
