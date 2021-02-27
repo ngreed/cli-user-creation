@@ -2,61 +2,82 @@
 
 namespace App\Command;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserManager;
+use App\Service\UserManagerMessageProvider;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateUserCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'app:create-user';
-	private $entityManager;
+    protected static $defaultName = 'app:user:create';
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        // 3. Update the value of the private entityManager variable through injection
-        $this->entityManager = $entityManager;
+    /**
+     * @var UserManager
+     */
+	private $userManager;
+
+    /**
+     * @var UserManagerMessageProvider
+     */
+	private $messageProvider;
+
+    /**
+     * @param UserManager $userManager
+     * @param UserManagerMessageProvider $messageProvider
+     */
+    public function __construct(
+        UserManager $userManager,
+        UserManagerMessageProvider $messageProvider
+    ) {
+        $this->userManager = $userManager;
+        $this->messageProvider = $messageProvider;
 
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure() : void
     {
         $this
             ->setDescription('Creates a new user.')
-            ->setHelp('This command allows you to create a user...');
-//            ->addArgument();
+            ->setHelp('This command allows you to create a user.')
+            ->addArgument('email', InputArgument::REQUIRED, 'Email Address')
+            ->addArgument('firstname', InputArgument::OPTIONAL, 'First Name')
+            ->addArgument('lastname', InputArgument::OPTIONAL, 'Last Name')
+            ->addArgument('phone', InputArgument::OPTIONAL, 'Phone Number')
+            ->addArgument('phone2', InputArgument::OPTIONAL, 'Another Phone Number')
+            ->addArgument('comment', InputArgument::OPTIONAL, 'Comments');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $em = $this->entityManager;
-        $user = new User;
-        $user
-            ->setFirstName('vardas')
-            ->setLastName('pavarde')
-            ->setEmail('email@gmail.com')
-            ->setPhoneNumber1('34556457')
-            ->setPhoneNumber2('45645757')
-            ->setComment('komentaras')
-            ->setDoc(new \DateTime());
+        $email = $input->getArgument('email');
+        if (!$this->userManager->validateEmail($email)) {
+            $output->writeln(UserManagerMessageProvider::ERROR_EMAIL);
 
-        $em->persist($user);
-        $em->flush();
+            return Command::FAILURE;
+        }
 
-        $output->writeln('TESTAS');
+        $isSuccess = $this->userManager->create(
+            $input->getArgument('firstname'),
+            $input->getArgument('lastname'),
+            $email,
+            $input->getArgument('phone'),
+            $input->getArgument('phone2'),
+            $input->getArgument('comment')
+        );
 
-        // this method must return an integer number with the "exit status code"
-        // of the command. You can also use these constants to make code more readable
+        $output->writeln($this->messageProvider->getCreateMessage($isSuccess));
 
-        // return this if there was no problem running the command
-        // (it's equivalent to returning int(0))
-        return Command::SUCCESS;
-
-        // or return this if some error happened during the execution
-        // (it's equivalent to returning int(1))
-        // return Command::FAILURE;
+        return $isSuccess
+            ? Command::SUCCESS
+            : Command::FAILURE;
     }
 }

@@ -4,14 +4,10 @@ namespace App\Service;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
 {
-    const ERROR_DOCTRINE = 'There was an error with persisting the changes to the database';
-    const ERROR_FIND = "Couldn't find this user.";
-    const SUCCESS_ADDED  = 'User has been created.';
-    const SUCCESS_DELETED  = 'User has been deleted.';
-
     /**
      * @var EntityManager
      */
@@ -20,7 +16,7 @@ class UserManager
     /**
      * @param EntityManager $entityManager
      */
-	public function __construct(EntityManager $entityManager)
+	public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
@@ -28,12 +24,12 @@ class UserManager
     /**
      * @param string|null $firstName
      * @param string|null $lastName
-     * @param string $email
+     * @param string      $email
      * @param string|null $phoneNumber1
      * @param string|null $phoneNumber2
      * @param string|null $comment
      *
-     * @return string
+     * @return User|null
      */
 	public function create(
 		?string $firstName,
@@ -42,7 +38,7 @@ class UserManager
 		?string $phoneNumber1,
 		?string $phoneNumber2,
 		?string $comment
-	) : string {
+	) : ?User {
 		$user = new User;
 		$user
 			->setFirstName($firstName)
@@ -57,26 +53,69 @@ class UserManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         } catch (\Exception $e) {
-            return self::ERROR_DOCTRINE;
+            error_log(
+                sprintf(
+                    'There was an exception in %s class %s function: %s',
+                    self::class,
+                    __FUNCTION__ . '()',
+                    $e->getMessage()
+                )
+            );
+
+            return null;
         }
 
-        return self::SUCCESS_ADDED;
+        return $user;
 	}
 
     /**
      * @param string $email
      *
-     * @return string
+     * @return bool
      */
-	public function delete(string $email) : string
+	public function delete(string $email) : bool
     {
-        /** @var User $user */
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-
+        $user = $this->find($email);
         if (!$user instanceof User) {
-            return self::ERROR_FIND;
+            return false;
         }
-        $this->entityManager->remove($user);
-        $this->entityManager->flush();
+
+        try {
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            error_log(
+                sprintf(
+                    'There was an exception in %s class %s function: %s',
+                    self::class,
+                    __FUNCTION__ . '()',
+                    $e->getMessage()
+                )
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return User|null
+     */
+    public function find(string $email) : ?User
+    {
+        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return bool
+     */
+    public function validateEmail(string $email) : bool
+    {
+        return preg_match('|^[a-zA-Z0-9!@#$%^&*()]+@[a-zA-Z0-9!@#$%^&*()]+\.com$|', $email);
     }
 }
