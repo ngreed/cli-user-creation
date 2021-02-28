@@ -13,15 +13,8 @@ class ImportUserCommand extends Command
 {
     protected static $defaultName = 'app:user:import';
 
-    /**
-     * @var UserManager
-     */
-	private $userManager;
-
-    /**
-     * @var UserManagerMessageProvider
-     */
-	private $messageProvider;
+	private UserManager $userManager;
+	private UserManagerMessageProvider $messageProvider;
 
     /**
      * @param UserManager $userManager
@@ -53,11 +46,14 @@ class ImportUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $isSuccess = $this->userManager->import($input->getArgument('filepath'));
-        $output->writeln($this->messageProvider->getImportMessage($isSuccess));
+        $output->writeln(
+            $this->messageProvider->getImportMessage(
+                $this->userManager->import(
+                    $input->getArgument('filepath')
+                )
+            )
+        );
 
-        return $isSuccess
-            ? Command::SUCCESS
-            : Command::FAILURE;
+        return Command::SUCCESS;
     }
 }

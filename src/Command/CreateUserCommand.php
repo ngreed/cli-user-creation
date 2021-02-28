@@ -52,33 +52,19 @@ class CreateUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $email = $input->getArgument('email');
-
-        if (!$this->userManager->validateEmail($email)) {
-            $output->writeln(UserManagerMessageProvider::ERROR_EMAIL);
-
-            return Command::FAILURE;
-        }
-
-        if ($this->userManager->find($email) instanceof User) {
-            $output->writeln(UserManagerMessageProvider::ERROR_DUPLICATE);
-
-            return Command::FAILURE;
-        }
-
-        $isSuccess = $this->userManager->create(
-            $input->getArgument('firstname'),
-            $input->getArgument('lastname'),
-            $email,
-            $input->getArgument('phone'),
-            $input->getArgument('phone2'),
-            $input->getArgument('comment')
+        $output->writeln(
+            $this->messageProvider->getCreateMessage(
+                $this->userManager->create(
+                    $input->getArgument('firstname'),
+                    $input->getArgument('lastname'),
+                    $input->getArgument('email'),
+                    $input->getArgument('phone'),
+                    $input->getArgument('phone2'),
+                    $input->getArgument('comment')
+                )
+            )
         );
 
-        $output->writeln($this->messageProvider->getCreateMessage($isSuccess));
-
-        return $isSuccess
-            ? Command::SUCCESS
-            : Command::FAILURE;
+        return Command::SUCCESS;
     }
 }

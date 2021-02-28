@@ -6,40 +6,58 @@ use App\Entity\User;
 
 class UserManagerMessageProvider
 {
-    const SUCCESS_CREATE  = 'User has been created.';
+    const SUCCESS_CREATE_SINGLE  = 'User has been created.';
+    const SUCCESS_CREATE_MULTIPLE  = "Users with following email addresses have been created:\r\n%s";
     const SUCCESS_DELETE  = 'User has been deleted.';
     const SUCCESS_FIND  = "User data: \r\nFirst Name: %s\r\nLast Name: %s\r\nEmail: %s \r\n"
         . "Phone1: %s\r\nPhone2: %s\r\nComment: %s\r\nDate Created: %s";
-    const SUCCESS_IMPORT  = 'Users have been imported.';
-    const ERROR_CREATE = 'There was an error creating the user.';
-    const ERROR_DELETE = 'There was an error deleting the user.';
+    const ERROR_GENERIC_SINGLE = 'Error.';
+    const ERROR_GENERIC_MULTIPLE = "There was an error creating following users:\r\n%s.";
     const ERROR_FIND = 'User could not be found';
-    const ERROR_IMPORT = 'There was an error importing the users.';
-    const ERROR_EMAIL = 'Email Address is not valid!';
-    const ERROR_DUPLICATE = 'A user with this email address already exists.';
+    const ERROR_EMAIL_SINGLE = 'Email Address is not valid!';
+    const ERROR_EMAIL_MULTIPLE = "These email addresses are not valid:\r\n%s";
+    const ERROR_DUPLICATE_SINGLE = 'A user with this email address already exists.';
+    const ERROR_DUPLICATE_MULTIPLE = "There already exist users with these email addresses:\r\n%s";
+    const ERROR_FILE = 'Could not open the file.';
+
+    const MAP_CREATE = [
+        UserManager::INDEX_SUCCESS => self::SUCCESS_CREATE_SINGLE,
+        UserManager::INDEX_ERROR => self::ERROR_GENERIC_SINGLE,
+        UserManager::INDEX_DUPLICATE => self::ERROR_DUPLICATE_SINGLE,
+        UserManager::INDEX_INVALID_EMAIL => self::ERROR_EMAIL_SINGLE,
+    ];
+
+    const MAP_DELETE = [
+        UserManager::INDEX_SUCCESS => self::SUCCESS_DELETE,
+        UserManager::INDEX_ERROR => self::ERROR_GENERIC_SINGLE,
+        UserManager::INDEX_NOT_FOUND => self::ERROR_FIND,
+    ];
+
+    const MAP_IMPORT = [
+        UserManager::INDEX_SUCCESS => self::SUCCESS_CREATE_MULTIPLE,
+        UserManager::INDEX_ERROR => self::ERROR_GENERIC_MULTIPLE,
+        UserManager::INDEX_DUPLICATE => self::ERROR_DUPLICATE_MULTIPLE,
+        UserManager::INDEX_INVALID_EMAIL => self::ERROR_EMAIL_MULTIPLE,
+    ];
 
     /**
-     * @param User|null $user
+     * @param array $userData
      *
      * @return string
      */
-    public function getCreateMessage(?User $user) : string
+    public function getCreateMessage(array $userData) : string
     {
-        return $user instanceof User
-            ? self::SUCCESS_CREATE
-            : self::ERROR_CREATE;
+        return self::MAP_CREATE[array_key_first($userData)];
     }
 
     /**
-     * @param bool $isDeleted
+     * @param array $userData
      *
      * @return string
      */
-    public function getDeleteMessage(bool $isDeleted) : string
+    public function getDeleteMessage(array $userData) : string
     {
-        return $isDeleted
-            ? self::SUCCESS_DELETE
-            : self::ERROR_DELETE;
+        return self::MAP_DELETE[array_key_first($userData)];
     }
 
     /**
@@ -64,14 +82,21 @@ class UserManagerMessageProvider
     }
 
     /**
-     * @param bool $isImported
+     * @param array|null $userData
      *
      * @return string
      */
-    public function getImportMessage(bool $isImported) : string
+    public function getImportMessage(?array $userData) : string
     {
-        return $isImported
-            ? self::SUCCESS_IMPORT
-            : self::ERROR_IMPORT;
+        if (is_null($userData)) {
+            return self::ERROR_FILE;
+        }
+
+        $message = '';
+        foreach ($userData as $key => $value) {
+            $message .= sprintf(self::MAP_IMPORT[$key], implode(', ', (array)$value)) . "\r\n";
+        }
+
+        return $message;
     }
 }

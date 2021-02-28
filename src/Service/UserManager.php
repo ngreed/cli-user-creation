@@ -7,6 +7,12 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
 {
+    const INDEX_SUCCESS = 'success';
+    const INDEX_ERROR = 'error';
+    const INDEX_DUPLICATE = 'duplicate';
+    const INDEX_INVALID_EMAIL = 'invalidEmail';
+    const INDEX_NOT_FOUND = '404';
+
 	private EntityManagerInterface $entityManager;
 
     /**
@@ -25,7 +31,7 @@ class UserManager
      * @param string|null $phoneNumber2
      * @param string|null $comment
      *
-     * @return User|null
+     * @return array
      */
 	public function create(
 		?string $firstName,
@@ -34,8 +40,17 @@ class UserManager
 		?string $phoneNumber1,
 		?string $phoneNumber2,
 		?string $comment
-	) : ?User {
-		$user = new User;
+	) : array {
+        if (!$this->validateEmail($email)) {
+            return [self::INDEX_INVALID_EMAIL => $email];
+        }
+
+        $existingUser = $this->find($email);
+        if ($existingUser instanceof User) {
+            return [self::INDEX_DUPLICATE => $email];
+        }
+
+        $user = new User;
 		$user
 			->setFirstName($firstName)
 			->setLastName($lastName)
@@ -58,22 +73,22 @@ class UserManager
                 )
             );
 
-            return null;
+            return [self::INDEX_ERROR => $email];
         }
 
-        return $user;
+        return [self::INDEX_SUCCESS => $email];
 	}
 
     /**
      * @param string $email
      *
-     * @return bool
+     * @return array
      */
-	public function delete(string $email) : bool
+	public function delete(string $email) : array
     {
         $user = $this->find($email);
         if (!$user instanceof User) {
-            return false;
+            return [self::INDEX_NOT_FOUND => $email];
         }
 
         try {
@@ -89,10 +104,10 @@ class UserManager
                 )
             );
 
-            return false;
+            return [self::INDEX_ERROR => $email];
         }
 
-        return true;
+        return [self::INDEX_SUCCESS => $email];
     }
 
     /**
@@ -108,32 +123,31 @@ class UserManager
     /**
      * @param string $filepath
      *
-     * @return bool
+     * @return array|null
      */
-    public function import(string $filepath) : bool
+    public function import(string $filepath) : ?array
     {
         if (($handle = fopen($filepath, "r")) !== false) {
+            $userData = [];
             while (($data = fgetcsv($handle, 255)) !== false) {
-                $email = $data[2];
-                if ($this->find($email) instanceof User) {
-                    continue;
-                }
-
-                $this->create(
-                    $data[0],
-                    $data[1],
-                    $email,
-                    $data[3],
-                    $data[4],
-                    $data[5]
+                $userData = array_merge_recursive(
+                    $userData,
+                    $this->create(
+                        $data[0],
+                        $data[1],
+                        $data[2],
+                        $data[3],
+                        $data[4],
+                        $data[5]
+                    )
                 );
             }
             fclose($handle);
 
-            return true;
+            return $userData;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -143,6 +157,6 @@ class UserManager
      */
     public function validateEmail(string $email) : bool
     {
-        return preg_match('|^[a-zA-Z0-9!@#$%^&*()]+@[a-zA-Z0-9!@#$%^&*()]+\.com$|', $email);
+        return preg_match('|^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.com$|', $email);
     }
 }
