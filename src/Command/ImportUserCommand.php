@@ -17,7 +17,7 @@ class ImportUserCommand extends Command
 	private UserManagerMessageProvider $messageProvider;
 
     /**
-     * @param UserManager $userManager
+     * @param UserManager                $userManager
      * @param UserManagerMessageProvider $messageProvider
      */
     public function __construct(
@@ -39,7 +39,7 @@ class ImportUserCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return int

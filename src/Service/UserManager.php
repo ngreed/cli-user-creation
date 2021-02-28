@@ -24,9 +24,9 @@ class UserManager
     }
 
     /**
+     * @param string      $email
      * @param string|null $firstName
      * @param string|null $lastName
-     * @param string      $email
      * @param string|null $phoneNumber1
      * @param string|null $phoneNumber2
      * @param string|null $comment
@@ -34,12 +34,12 @@ class UserManager
      * @return array
      */
 	public function create(
-		?string $firstName,
-		?string $lastName,
-		string $email,
-		?string $phoneNumber1,
-		?string $phoneNumber2,
-		?string $comment
+        string $email,
+		?string $firstName = null,
+		?string $lastName = null,
+		?string $phoneNumber1 = null,
+		?string $phoneNumber2 = null,
+		?string $comment = null
 	) : array {
         if (!$this->validateEmail($email)) {
             return [self::INDEX_INVALID_EMAIL => $email];

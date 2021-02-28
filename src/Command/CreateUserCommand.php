@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Entity\User;
 use App\Service\UserManager;
 use App\Service\UserManagerMessageProvider;
 use Symfony\Component\Console\Command\Command;
@@ -55,9 +54,9 @@ class CreateUserCommand extends Command
         $output->writeln(
             $this->messageProvider->getCreateMessage(
                 $this->userManager->create(
+                    $input->getArgument('email'),
                     $input->getArgument('firstname'),
                     $input->getArgument('lastname'),
-                    $input->getArgument('email'),
                     $input->getArgument('phone'),
                     $input->getArgument('phone2'),
                     $input->getArgument('comment')

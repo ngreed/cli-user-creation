@@ -26,13 +26,11 @@ class UserManagerMessageProvider
         UserManager::INDEX_DUPLICATE => self::ERROR_DUPLICATE_SINGLE,
         UserManager::INDEX_INVALID_EMAIL => self::ERROR_EMAIL_SINGLE,
     ];
-
     const MAP_DELETE = [
         UserManager::INDEX_SUCCESS => self::SUCCESS_DELETE,
         UserManager::INDEX_ERROR => self::ERROR_GENERIC_SINGLE,
         UserManager::INDEX_NOT_FOUND => self::ERROR_FIND,
     ];
-
     const MAP_IMPORT = [
         UserManager::INDEX_SUCCESS => self::SUCCESS_CREATE_MULTIPLE,
         UserManager::INDEX_ERROR => self::ERROR_GENERIC_MULTIPLE,
