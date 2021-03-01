@@ -2,8 +2,9 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\User;
-use App\Service\UserManager;
+use App\Service\User\UserManager;
+use App\Service\User\Validation\DataValidator;
+use App\Service\User\Validation\DuplicateValidator;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +20,13 @@ class UserManagerTest extends TestCase
         string $email,
         array $expectedValue
     ) : void {
-        $userManager = new UserManager($this->createMock(EntityManager::class));
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator->method('validate')->willReturn(false);
+        $userManager = new UserManager(
+            $this->createMock(EntityManager::class),
+            $dataValidator,
+            $this->createMock(DuplicateValidator::class)
+        );
 
         $this->assertEquals(
             $expectedValue,
@@ -38,11 +45,11 @@ class UserManagerTest extends TestCase
         return [
             [
                 $email1,
-                [UserManager::INDEX_INVALID_EMAIL => $email1],
+                [UserManager::INDEX_INVALID => $email1],
             ],
             [
                 $email2,
-                [UserManager::INDEX_INVALID_EMAIL => $email2],
+                [UserManager::INDEX_INVALID => $email2],
             ],
         ];
     }
@@ -57,8 +64,16 @@ class UserManagerTest extends TestCase
         string $email,
         array $expectedValue
     ) : void {
-        $userManager = $this->createPartialMock(UserManager::class, ['find']);
-        $userManager->method('find')->with($email)->willReturn(new User());
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator->method('validate')->willReturn(true);
+        $duplicateValidator = $this->createMock(DuplicateValidator::class);
+        $duplicateValidator->method('isUnique')->willReturn(false);
+
+        $userManager = new UserManager(
+            $this->createMock(EntityManager::class),
+            $dataValidator,
+            $duplicateValidator
+        );
 
         $this->assertEquals(
             $expectedValue,
@@ -96,6 +111,11 @@ class UserManagerTest extends TestCase
         string $email,
         array $expectedValue
     ) : void {
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator->method('validate')->willReturn(true);
+        $duplicateValidator = $this->createMock(DuplicateValidator::class);
+        $duplicateValidator->method('isUnique')->willReturn(true);
+
         $entityManager = $this->createMock(EntityManager::class);
         $entityManager
             ->method('persist')
@@ -103,8 +123,11 @@ class UserManagerTest extends TestCase
 
         $userManager = $this
             ->getMockBuilder(UserManager::class)
-            ->setConstructorArgs([$entityManager])
-            ->onlyMethods(['find'])
+            ->setConstructorArgs([
+                $entityManager,
+                $dataValidator,
+                $duplicateValidator
+            ])->onlyMethods(['find'])
             ->getMock();
         $userManager->method('find')->with($email)->willReturn(null);
 
@@ -144,14 +167,22 @@ class UserManagerTest extends TestCase
         string $email,
         array $expectedValue
     ) : void {
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator->method('validate')->willReturn(true);
+        $duplicateValidator = $this->createMock(DuplicateValidator::class);
+        $duplicateValidator->method('isUnique')->willReturn(true);
+
         $entityManager = $this->createMock(EntityManager::class);
         $entityManager->method('persist');
         $entityManager->method('flush');
 
         $userManager = $this
             ->getMockBuilder(UserManager::class)
-            ->setConstructorArgs([$entityManager])
-            ->onlyMethods(['find'])
+            ->setConstructorArgs([
+                $entityManager,
+                $dataValidator,
+                $duplicateValidator
+            ])->onlyMethods(['find'])
             ->getMock();
         $userManager->method('find')->with($email)->willReturn(null);
 

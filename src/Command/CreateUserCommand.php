@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Service\UserManager;
-use App\Service\UserManagerMessageProvider;
+use App\Service\User\UserManager;
+use App\Service\User\UserManagerMessageProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

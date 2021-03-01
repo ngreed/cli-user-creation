@@ -2,28 +2,33 @@
 
 namespace App\Command;
 
-use App\Service\UserManager;
-use App\Service\UserManagerMessageProvider;
+use App\Service\User\Import\UserImporterCsv;
+use App\Service\User\UserManager;
+use App\Service\User\UserManagerMessageProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportUserCommand extends Command
+class ImportCsvUserCommand extends Command
 {
-    protected static $defaultName = 'app:user:import';
+    protected static $defaultName = 'app:user:import-csv';
 
+    private UserImporterCsv $userImporter;
 	private UserManager $userManager;
 	private UserManagerMessageProvider $messageProvider;
 
     /**
+     * @param UserImporterCsv            $userImporter
      * @param UserManager                $userManager
      * @param UserManagerMessageProvider $messageProvider
      */
     public function __construct(
+        UserImporterCsv $userImporter,
         UserManager $userManager,
         UserManagerMessageProvider $messageProvider
     ) {
+        $this->userImporter = $userImporter;
         $this->userManager = $userManager;
         $this->messageProvider = $messageProvider;
 
@@ -33,7 +38,7 @@ class ImportUserCommand extends Command
     protected function configure() : void
     {
         $this
-            ->setDescription('Imports users.')
+            ->setDescription('Imports users from a csv file.')
             ->setHelp('This command allows you to import users from a csv file.')
             ->addArgument('filepath', InputArgument::REQUIRED, 'Path to csv import file');
     }
@@ -48,8 +53,8 @@ class ImportUserCommand extends Command
     {
         $output->writeln(
             $this->messageProvider->getImportMessage(
-                $this->userManager->import(
-                    $input->getArgument('filepath')
+                $this->userManager->createMultiple(
+                    $this->userImporter->getData($input->getArgument('filepath'))
                 )
             )
         );

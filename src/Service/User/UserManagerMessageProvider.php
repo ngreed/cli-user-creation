@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\User;
 
 use App\Entity\User;
 
@@ -14,17 +14,17 @@ class UserManagerMessageProvider
     const ERROR_GENERIC_SINGLE = 'Error.';
     const ERROR_GENERIC_MULTIPLE = "There was an error creating following users:\r\n%s.";
     const ERROR_FIND = 'User could not be found';
-    const ERROR_EMAIL_SINGLE = 'Email Address is not valid!';
-    const ERROR_EMAIL_MULTIPLE = "These email addresses are not valid:\r\n%s";
-    const ERROR_DUPLICATE_SINGLE = 'A user with this email address already exists.';
-    const ERROR_DUPLICATE_MULTIPLE = "There already exist users with these email addresses:\r\n%s";
+    const ERROR_INVALID_SINGLE = 'The data entered is invalid!';
+    const ERROR_INVALID_MULTIPLE = "These users have invalid data:\r\n%s";
+    const ERROR_DUPLICATE_SINGLE = 'A user like this already exists.';
+    const ERROR_DUPLICATE_MULTIPLE = "Users like these already exist:\r\n%s";
     const ERROR_FILE = 'Could not open the file.';
 
     const MAP_CREATE = [
         UserManager::INDEX_SUCCESS => self::SUCCESS_CREATE_SINGLE,
         UserManager::INDEX_ERROR => self::ERROR_GENERIC_SINGLE,
         UserManager::INDEX_DUPLICATE => self::ERROR_DUPLICATE_SINGLE,
-        UserManager::INDEX_INVALID_EMAIL => self::ERROR_EMAIL_SINGLE,
+        UserManager::INDEX_INVALID => self::ERROR_INVALID_SINGLE,
     ];
     const MAP_DELETE = [
         UserManager::INDEX_SUCCESS => self::SUCCESS_DELETE,
@@ -35,7 +35,7 @@ class UserManagerMessageProvider
         UserManager::INDEX_SUCCESS => self::SUCCESS_CREATE_MULTIPLE,
         UserManager::INDEX_ERROR => self::ERROR_GENERIC_MULTIPLE,
         UserManager::INDEX_DUPLICATE => self::ERROR_DUPLICATE_MULTIPLE,
-        UserManager::INDEX_INVALID_EMAIL => self::ERROR_EMAIL_MULTIPLE,
+        UserManager::INDEX_INVALID => self::ERROR_INVALID_MULTIPLE,
     ];
 
     /**

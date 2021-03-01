@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\User;
 
 use App\Entity\User;
+use App\Service\User\Validation\DataValidator;
+use App\Service\User\Validation\DuplicateValidator;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
@@ -10,17 +12,26 @@ class UserManager
     const INDEX_SUCCESS = 'success';
     const INDEX_ERROR = 'error';
     const INDEX_DUPLICATE = 'duplicate';
-    const INDEX_INVALID_EMAIL = 'invalidEmail';
+    const INDEX_INVALID = 'invalid';
     const INDEX_NOT_FOUND = '404';
 
 	private EntityManagerInterface $entityManager;
+	private DataValidator $dataValidator;
+	private DuplicateValidator $duplicateValidator;
 
     /**
      * @param EntityManagerInterface $entityManager
+     * @param DataValidator          $dataValidator
+     * @param DuplicateValidator     $duplicateValidator
      */
-	public function __construct(EntityManagerInterface $entityManager)
-    {
+	public function __construct(
+	    EntityManagerInterface $entityManager,
+        DataValidator $dataValidator,
+        DuplicateValidator $duplicateValidator
+    ) {
         $this->entityManager = $entityManager;
+        $this->dataValidator = $dataValidator;
+        $this->duplicateValidator = $duplicateValidator;
     }
 
     /**
@@ -41,12 +52,25 @@ class UserManager
 		?string $phoneNumber2 = null,
 		?string $comment = null
 	) : array {
-        if (!$this->validateEmail($email)) {
-            return [self::INDEX_INVALID_EMAIL => $email];
+        if (!$this->dataValidator->validate(
+            $email,
+            $firstName,
+            $lastName,
+            $phoneNumber1,
+            $phoneNumber2,
+            $comment
+        )) {
+            return [self::INDEX_INVALID => $email];
         }
 
-        $existingUser = $this->find($email);
-        if ($existingUser instanceof User) {
+        if (!$this->duplicateValidator->isUnique(
+            $email,
+            $firstName,
+            $lastName,
+            $phoneNumber1,
+            $phoneNumber2,
+            $comment
+        )) {
             return [self::INDEX_DUPLICATE => $email];
         }
 
@@ -121,42 +145,27 @@ class UserManager
     }
 
     /**
-     * @param string $filepath
+     * @param array $userData
      *
-     * @return array|null
+     * @return array
      */
-    public function import(string $filepath) : ?array
+    public function createMultiple(array $userData) : array
     {
-        if (($handle = fopen($filepath, "r")) !== false) {
-            $userData = [];
-            while (($data = fgetcsv($handle, 255)) !== false) {
-                $userData = array_merge_recursive(
-                    $userData,
-                    $this->create(
-                        $data[0],
-                        $data[1],
-                        $data[2],
-                        $data[3],
-                        $data[4],
-                        $data[5]
-                    )
-                );
-            }
-            fclose($handle);
-
-            return $userData;
+        $createdUsers = [];
+        foreach ($userData as $singleUser) {
+            $createdUsers = array_merge_recursive(
+                $createdUsers,
+                $this->create(
+                    $singleUser[0],
+                    $singleUser[1],
+                    $singleUser[2],
+                    $singleUser[3],
+                    $singleUser[4],
+                    $singleUser[5]
+                )
+            );
         }
 
-        return null;
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return bool
-     */
-    public function validateEmail(string $email) : bool
-    {
-        return preg_match('|^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.com$|', $email);
+        return $createdUsers;
     }
 }
