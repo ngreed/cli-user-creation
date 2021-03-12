@@ -15,12 +15,12 @@ class ImportCsvUserCommand extends Command
     protected static $defaultName = 'app:user:import-csv';
 
     private UserImporterCsv $userImporter;
-	private UserManager $userManager;
-	private UserManagerMessageProvider $messageProvider;
+    private UserManager $userManager;
+    private UserManagerMessageProvider $messageProvider;
 
     /**
-     * @param UserImporterCsv            $userImporter
-     * @param UserManager                $userManager
+     * @param UserImporterCsv $userImporter
+     * @param UserManager $userManager
      * @param UserManagerMessageProvider $messageProvider
      */
     public function __construct(
@@ -35,7 +35,7 @@ class ImportCsvUserCommand extends Command
         parent::__construct();
     }
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $this
             ->setDescription('Imports users from a csv file.')
@@ -44,12 +44,12 @@ class ImportCsvUserCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output) : int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln(
             $this->messageProvider->getImportMessage(

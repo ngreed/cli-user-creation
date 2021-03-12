@@ -11,7 +11,7 @@ class UserImporterCsv
      *
      * @throws \Exception
      */
-    public function getData(string $filepath) : array
+    public function getData(string $filepath): array
     {
         if (($handle = fopen($filepath, "r")) !== false) {
             $userData = [];

@@ -14,12 +14,12 @@ class UserManagerTest extends TestCase
      * @dataProvider createInvalidEmailDataProvider
      *
      * @param string $email
-     * @param array  $expectedValue
+     * @param array $expectedValue
      */
     public function testCreateInvalidEmail(
         string $email,
         array $expectedValue
-    ) : void {
+    ): void {
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator->method('validate')->willReturn(false);
         $userManager = new UserManager(
@@ -37,7 +37,7 @@ class UserManagerTest extends TestCase
     /**
      * @return array
      */
-    public function createInvalidEmailDataProvider() : array
+    public function createInvalidEmailDataProvider(): array
     {
         $email1 = 'in!@valid.com';
         $email2 = '@nother@invalid.com';
@@ -58,12 +58,12 @@ class UserManagerTest extends TestCase
      * @dataProvider createDuplicateDataProvider
      *
      * @param string $email
-     * @param array  $expectedValue
+     * @param array $expectedValue
      */
     public function testCreateDuplicate(
         string $email,
         array $expectedValue
-    ) : void {
+    ): void {
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator->method('validate')->willReturn(true);
         $duplicateValidator = $this->createMock(DuplicateValidator::class);
@@ -84,7 +84,7 @@ class UserManagerTest extends TestCase
     /**
      * @return array
      */
-    public function createDuplicateDataProvider() : array
+    public function createDuplicateDataProvider(): array
     {
         $email1 = 'duplicate@email.com';
         $email2 = 'duplicate2@email.com';
@@ -105,12 +105,12 @@ class UserManagerTest extends TestCase
      * @dataProvider createExceptionDataProvider
      *
      * @param string $email
-     * @param array  $expectedValue
+     * @param array $expectedValue
      */
     public function testCreateException(
         string $email,
         array $expectedValue
-    ) : void {
+    ): void {
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator->method('validate')->willReturn(true);
         $duplicateValidator = $this->createMock(DuplicateValidator::class);
@@ -140,7 +140,7 @@ class UserManagerTest extends TestCase
     /**
      * @return array
      */
-    public function createExceptionDataProvider() : array
+    public function createExceptionDataProvider(): array
     {
         $email1 = 'valid@email.com';
         $email2 = 'valid2@email.com';
@@ -161,12 +161,12 @@ class UserManagerTest extends TestCase
      * @dataProvider createSuccessDataProvider
      *
      * @param string $email
-     * @param array  $expectedValue
+     * @param array $expectedValue
      */
     public function testCreateSuccess(
         string $email,
         array $expectedValue
-    ) : void {
+    ): void {
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator->method('validate')->willReturn(true);
         $duplicateValidator = $this->createMock(DuplicateValidator::class);
@@ -195,7 +195,7 @@ class UserManagerTest extends TestCase
     /**
      * @return array
      */
-    public function createSuccessDataProvider() : array
+    public function createSuccessDataProvider(): array
     {
         $email1 = 'valid@email.com';
         $email2 = 'valid2@email.com';

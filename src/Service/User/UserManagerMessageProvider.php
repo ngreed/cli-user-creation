@@ -6,11 +6,11 @@ use App\Entity\User;
 
 class UserManagerMessageProvider
 {
-    const SUCCESS_CREATE_SINGLE  = 'User has been created.';
-    const SUCCESS_CREATE_MULTIPLE  = "Users with following email addresses have been created:\r\n%s";
-    const SUCCESS_DELETE  = 'User has been deleted.';
-    const SUCCESS_FIND  = "User data: \r\nFirst Name: %s\r\nLast Name: %s\r\nEmail: %s \r\n"
-        . "Phone1: %s\r\nPhone2: %s\r\nComment: %s\r\nDate Created: %s";
+    const SUCCESS_CREATE_SINGLE = 'User has been created.';
+    const SUCCESS_CREATE_MULTIPLE = "Users with following email addresses have been created:\r\n%s";
+    const SUCCESS_DELETE = 'User has been deleted.';
+    const SUCCESS_FIND = "User data: \r\nFirst Name: %s\r\nLast Name: %s\r\nEmail: %s \r\n"
+    . "Phone1: %s\r\nPhone2: %s\r\nComment: %s\r\nDate Created: %s";
     const ERROR_GENERIC_SINGLE = 'Error.';
     const ERROR_GENERIC_MULTIPLE = "There was an error creating following users:\r\n%s.";
     const ERROR_FIND = 'User could not be found';
@@ -43,7 +43,7 @@ class UserManagerMessageProvider
      *
      * @return string
      */
-    public function getCreateMessage(array $userData) : string
+    public function getCreateMessage(array $userData): string
     {
         return self::MAP_CREATE[array_key_first($userData)];
     }
@@ -53,7 +53,7 @@ class UserManagerMessageProvider
      *
      * @return string
      */
-    public function getDeleteMessage(array $userData) : string
+    public function getDeleteMessage(array $userData): string
     {
         return self::MAP_DELETE[array_key_first($userData)];
     }
@@ -84,7 +84,7 @@ class UserManagerMessageProvider
      *
      * @return string
      */
-    public function getImportMessage(?array $userData) : string
+    public function getImportMessage(?array $userData): string
     {
         if (is_null($userData)) {
             return self::ERROR_FILE;

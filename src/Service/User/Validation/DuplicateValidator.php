@@ -29,12 +29,12 @@ class DuplicateValidator
      */
     public function isUnique(
         string $email,
-		?string $firstName = null,
-		?string $lastName = null,
-		?string $phoneNumber1 = null,
-		?string $phoneNumber2 = null,
-		?string $comment = null
-    ) : bool {
+        ?string $firstName = null,
+        ?string $lastName = null,
+        ?string $phoneNumber1 = null,
+        ?string $phoneNumber2 = null,
+        ?string $comment = null
+    ): bool {
         return $this->isUniqueEmail($email)
             && $this->isUniqueSomethingElse();
     }
@@ -44,7 +44,7 @@ class DuplicateValidator
      *
      * @return bool
      */
-    private function isUniqueEmail(string $email) : bool
+    private function isUniqueEmail(string $email): bool
     {
         $user = $this->entityManager
             ->getRepository(User::class)
@@ -60,7 +60,7 @@ class DuplicateValidator
     /**
      * @return bool
      */
-    private function isUniqueSomethingElse() : bool
+    private function isUniqueSomethingElse(): bool
     {
         return true;
     }

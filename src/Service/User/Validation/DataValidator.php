@@ -21,7 +21,7 @@ class DataValidator
         ?string $phoneNumber1 = null,
         ?string $phoneNumber2 = null,
         ?string $comment = null
-    ) : bool {
+    ): bool {
         return $this->validateEmail($email)
             && $this->validateSomethingElse();
     }
@@ -31,7 +31,7 @@ class DataValidator
      *
      * @return bool
      */
-    private function validateEmail(string $email) : bool
+    private function validateEmail(string $email): bool
     {
         return preg_match('|^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.com$|', $email);
     }
@@ -39,7 +39,7 @@ class DataValidator
     /**
      * @return bool
      */
-    private function validateSomethingElse() : bool
+    private function validateSomethingElse(): bool
     {
         return true;
     }

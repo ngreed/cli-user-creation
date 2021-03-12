@@ -15,17 +15,17 @@ class UserManager
     const INDEX_INVALID = 'invalid';
     const INDEX_NOT_FOUND = '404';
 
-	private EntityManagerInterface $entityManager;
-	private DataValidator $dataValidator;
-	private DuplicateValidator $duplicateValidator;
+    private EntityManagerInterface $entityManager;
+    private DataValidator $dataValidator;
+    private DuplicateValidator $duplicateValidator;
 
     /**
      * @param EntityManagerInterface $entityManager
-     * @param DataValidator          $dataValidator
-     * @param DuplicateValidator     $duplicateValidator
+     * @param DataValidator $dataValidator
+     * @param DuplicateValidator $duplicateValidator
      */
-	public function __construct(
-	    EntityManagerInterface $entityManager,
+    public function __construct(
+        EntityManagerInterface $entityManager,
         DataValidator $dataValidator,
         DuplicateValidator $duplicateValidator
     ) {
@@ -35,7 +35,7 @@ class UserManager
     }
 
     /**
-     * @param string      $email
+     * @param string $email
      * @param string|null $firstName
      * @param string|null $lastName
      * @param string|null $phoneNumber1
@@ -44,14 +44,14 @@ class UserManager
      *
      * @return array
      */
-	public function create(
+    public function create(
         string $email,
-		?string $firstName = null,
-		?string $lastName = null,
-		?string $phoneNumber1 = null,
-		?string $phoneNumber2 = null,
-		?string $comment = null
-	) : array {
+        ?string $firstName = null,
+        ?string $lastName = null,
+        ?string $phoneNumber1 = null,
+        ?string $phoneNumber2 = null,
+        ?string $comment = null
+    ): array {
         if (!$this->dataValidator->validate(
             $email,
             $firstName,
@@ -75,16 +75,16 @@ class UserManager
         }
 
         $user = new User;
-		$user
-			->setFirstName($firstName)
-			->setLastName($lastName)
-			->setEmail($email)
-			->setPhoneNumber1($phoneNumber1)
-			->setPhoneNumber2($phoneNumber2)
-			->setComment($comment)
-			->setDoc(new \DateTime());
+        $user
+            ->setFirstName($firstName)
+            ->setLastName($lastName)
+            ->setEmail($email)
+            ->setPhoneNumber1($phoneNumber1)
+            ->setPhoneNumber2($phoneNumber2)
+            ->setComment($comment)
+            ->setDoc(new \DateTime());
 
-		try {
+        try {
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         } catch (\Exception $e) {
@@ -101,14 +101,14 @@ class UserManager
         }
 
         return [self::INDEX_SUCCESS => $email];
-	}
+    }
 
     /**
      * @param string $email
      *
      * @return array
      */
-	public function delete(string $email) : array
+    public function delete(string $email): array
     {
         $user = $this->find($email);
         if (!$user instanceof User) {
@@ -139,7 +139,7 @@ class UserManager
      *
      * @return User|null
      */
-    public function find(string $email) : ?User
+    public function find(string $email): ?User
     {
         return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
     }
@@ -149,7 +149,7 @@ class UserManager
      *
      * @return array
      */
-    public function createMultiple(array $userData) : array
+    public function createMultiple(array $userData): array
     {
         $createdUsers = [];
         foreach ($userData as $singleUser) {
